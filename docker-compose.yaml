@@ -68,7 +68,8 @@ x-airflow-common:
     - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
     - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
     - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
-    - source-data:/data
+    - ./data:/data
+    - models_volume:/opt/airflow/models  # Monta los modelos en /opt/airflow/models
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -322,12 +323,12 @@ services:
   ####################################
   # Contenedor para archivos de origen
   ####################################
-  source-files:
-    image: alpine:latest
-    command: tail -f /dev/null
-    volumes:
-      - source-data:/data
-    restart: always
+#  source-files:
+#    image: alpine:latest
+#    command: tail -f /dev/null
+#    volumes:
+#      - source-data:/data
+#    restart: always
 
   ####################################
   # Servicio FastAPI para Inferencia
@@ -340,11 +341,10 @@ services:
     ports:
       - "8081:8000"  # Accedes a FastAPI en http://localhost:8081
     volumes:
-      - models_volume:/home/app/models
+      - models_volume:/opt/airflow/models
     depends_on:
       - mysql
 
 volumes:
   postgres-db-volume:
   models_volume:
-  source-data:

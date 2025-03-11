@@ -2,9 +2,9 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.providers.mysql.operators.mysql import MySqlOperator
 from datetime import datetime, timedelta
+import os
 import pandas as pd
 import sqlalchemy
-import os
 import joblib
 
 from sklearn.model_selection import train_test_split
@@ -18,7 +18,7 @@ from sklearn.linear_model import LogisticRegression
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime(2023, 3, 1),
+    'start_date': datetime(2025, 3, 1),
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
 }
@@ -138,7 +138,7 @@ def train_models():
     
     # Asegurar que la carpeta para guardar modelos exista.
     # La ruta debe ser la misma que se comparte con FastAPI (por ejemplo, usando un volumen)
-    models_dir = "/home/app/models"
+    models_dir = "/opt/airflow/models"
     os.makedirs(models_dir, exist_ok=True)
     
     # Entrenar cada modelo y guardarlo

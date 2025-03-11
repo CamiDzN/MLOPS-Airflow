@@ -46,13 +46,29 @@ La solución se compone de los siguientes contenedores:
 
 .
 ├── airflow/               # Dockerfile y configuración custom de Airflow
+
+
 ├── dags/                  # DAGs de Airflow (incluye penguins_workflow.py)
+
+
 ├── data/                  # Archivos CSV de origen (penguins_lter.csv, penguins_size.csv)
+
+
 ├── logs/                  # Directorio para almacenar logs de Airflow
+
+
 ├── mysql/                 # Dockerfile y configuración custom para el contenedor MySQL
+
+
 ├── plugins/               # Plugins de Airflow (si se requieren)
+
+
 ├── docker-compose.yml     # Composición de todos los contenedores
+
+
 ├── .env                   # Archivo de variables de entorno (ejemplo: AIRFLOW_UID)
+
+
 └── README.md              # Este archivo
 
 
@@ -61,23 +77,31 @@ La solución se compone de los siguientes contenedores:
 - **1. Clonar el Repositorio** Puedes usar GitHub Desktop o ejecutar en Git Bash/CMD:
 
 bash
+
+
 git clone https://github.com/tu-usuario/tu-repositorio.git
 
 
 Navega al directorio clonado:
 
 bash
+
+
 cd tu-repositorio
 
 - **2. Configurar las Variables de Entorno** Crea un archivo .env en la raíz del repositorio (si no lo tienes) y asigna el siguiente valor para definir el usuario de Airflow. En Linux o Git Bash en Windows:
 
 bash
+
+
 echo -e "AIRFLOW_UID=$(id -u)" > .env
 
 
 En CMD o PowerShell, asigna manualmente:
 
 cmd
+
+
 echo AIRFLOW_UID=50000 > .env
 
 - **3. Preparar los Datos de Entrada** Coloca los archivos CSV de los pingüinos en el directorio ./data. 
@@ -91,7 +115,11 @@ Ejemplo:
 - **5. Ejecutar el Entorno** Desde la raíz del repositorio, ejecuta:
 
 bash
+
+
 docker compose up airflow-init
+
+
 docker compose up
 
 
@@ -131,6 +159,10 @@ Lee los datos preprocesados. Divide los datos en conjuntos de entrenamiento y pr
 Entrena varios modelos de Machine Learning (Random Forest, Decision Tree, SVM y Logistic Regression).
 Guarda los artefactos (modelos entrenados) en el directorio /opt/airflow/models (montado via models_volume).
 
+- **notify_api_reload:**
+
+ Envía una solicitud HTTP POST al endpoint /reload_models/ de FastAPI para actualizar la caché de modelos, garantizando que la API utilice siempre la versión más reciente sin necesidad de reiniciar el contenedor.
+
 
 ### API de Inferencia
 
@@ -143,5 +175,3 @@ Como parte del taller se implemento fastAPI para realizar inferencias a partir d
 ---
 
 Este README proporciona una descripción completa de la arquitectura, cómo configurar y ejecutar el entorno, el funcionamiento de los DAGs y pautas de solución de problemas. Puedes adaptarlo o ampliarlo conforme a los cambios o a la integración de la API para la inferencia.
-
-¿Te gustaría algún detalle extra, como ejemplos de comandos para probar la API o la integración de alguna herramienta adicional?

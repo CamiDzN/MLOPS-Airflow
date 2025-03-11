@@ -6,6 +6,7 @@ import os
 import pandas as pd
 import sqlalchemy
 import joblib
+import requests
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, LabelEncoder
@@ -156,5 +157,21 @@ train_models_task = PythonOperator(
     dag=dag,
 )
 
+#Función para Notificar la API
+
+def notify_api_reload():
+    url = "http://fastapi:8000/reload_models/"
+    try:
+        response = requests.post(url)
+        print("Respuesta del API:", response.json())
+    except Exception as e:
+        print("Error al notificar la recarga del API:", e)
+
+notify_reload_task = PythonOperator(
+    task_id='notify_api_reload',
+    python_callable=notify_api_reload,
+    dag=dag,
+)
+
 # Definir la secuencia de ejecución:
-clear_tables >> load_data_task >> preprocess_data_task >> train_models_task
+clear_tables >> load_data_task >> preprocess_data_task >> train_models_task >> notify_reload_task

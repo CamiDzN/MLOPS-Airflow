@@ -6,18 +6,38 @@ import os
 
 app = FastAPI()
 
+MODEL_DIR = "/opt/airflow/models"
+
 # Lista de nombres de modelos que esperamos encontrar
 model_names = ["random_forest", "decision_tree", "svm", "logistic_regression"]
 
 # Cargamos los modelos desde el directorio compartido (asegúrate de que la ruta coincide con el mapeo en Docker)
 models = {}
-for name in model_names:
-    file_path = f"/opt/airflow/models/{name}.pkl"
-    if os.path.exists(file_path):
-        models[name] = joblib.load(file_path)
-    else:
-        print(f"Warning: El modelo {name} no existe en {file_path}")
 
+def load_models():
+    global models
+    models = {}  # Reinicia el diccionario
+    print("Cargando modelos desde:", MODEL_DIR)
+    try:
+        archivos = os.listdir(MODEL_DIR)
+        print("Archivos en el directorio:", archivos)
+    except Exception as e:
+        print("Error al listar el directorio:", e)
+    
+    for name in model_names:
+        file_path = os.path.join(MODEL_DIR, f"{name}.pkl")
+        if os.path.exists(file_path):
+            try:
+                models[name] = joblib.load(file_path)
+                print(f"Modelo {name} cargado exitosamente desde {file_path}")
+            except Exception as e:
+                print(f"Error al cargar el modelo {name}: {e}")
+        else:
+            print(f"Warning: El modelo {name} NO existe en {file_path}")
+    print("Modelos actualmente cargados:", list(models.keys()))
+
+# Cargar los modelos al iniciar la API
+load_models()
 # Modelo seleccionado por defecto
 selected_model = "random_forest"
 
@@ -63,3 +83,7 @@ def select_model(model_name: str):
 def home():
     return {"message": "API de Predicción de Pingüinos con FastAPI"}
 
+@app.post("/reload_models/")
+def reload_models():
+    load_models()
+    return {"message": "Modelos recargados", "models": list(models.keys())}
